@@ -26,8 +26,16 @@ def get_name(content):
     cut1=cut_string(content,"trend","td_comm5")
     return cut_string(cut1,"n>","</s")
 
-for i in range(100,500):
-    url_base="http://zyk.ajiao.com/dzkb/"
-    content=requests.get(url_base+str(i)+"_1.html").text
-    print(str(i)+" > " + get_name(content))
+with open("")
+
+for i in range(270,500):
+    try:
+        url_base="http://zyk.ajiao.com/dzkb/"
+        content=requests.get(url_base+str(i)+"_1.html").text
+        print(str(i)+" > " + get_name(content))
+        import time
+        time.sleep(5)
+        
+    except:
+        pass
 

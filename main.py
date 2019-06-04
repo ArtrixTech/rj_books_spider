@@ -1,9 +1,5 @@
 import requests
-
-
-url = "http://old.pep.com.cn/gzhx/gzhxjs/0pl/kb/dzkb/bx1/201009/t20100916_%page_index%.htm"
-page_range = (899898, 900011)
-
+import os
 
 def cut_string(input_str, head, tail):
     if isinstance(
@@ -25,27 +21,32 @@ def cut_string(input_str, head, tail):
 
 
 def download_pic(img_url, local_url):
-    print("[download]" + img_url)
     img_content = requests.get(img_url).content
     with open(local_url, "wb") as file:
         file.write(img_content)
 
+def get_range(content):
+    cut1=cut_string(content,"td_comm5","trend")
+    cut2=cut_string(cut1,">页码：</span><span class=","/span")
+    cut3=cut_string(cut2,">","<")
+    return int(cut3)
 
-for page_index in range(page_range[0], page_range[1]):
+url_base="http://zyk.ajiao.com/dzkb/"
+img_base="http://res.ajiao.com/uploadfiles/Book/"
+book_code=input("Input the book code:\n")
+content=requests.get(url_base+book_code+"_1.html").text
+page_count=get_range(content)
+print("  > This book contains "+str(page_count)+" pages.")
 
-    cleared_url = url.replace("%page_index%", str(page_index))
-    page_content = requests.get(cleared_url).text
+save_dir='pics\\'+str(book_code)+"\\"
+if not os.path.exists("pics"):
+    os.mkdir("pics")
+if not os.path.exists(save_dir):
+    os.mkdir(save_dir)
 
-    img_url = cut_string(page_content, "align=center><IMG", " OLDSRC")
-    if "建议您使用" in img_url:
-        img_url = cut_string(page_content, "align=\"center\"><IMG", " OLDSRC")
+for page_index in range(1,page_count+1):
 
-    if "src=./"in img_url or "src=\"./"in img_url:
+    img_url=img_base+book_code+"/"+str(page_index)+'.jpg'
+    print("  > Downloding pic #"+str(page_index))
 
-        if "\"" in img_url:
-            img_extend = cut_string(img_url, "src=\"./", ".jpg") + ".jpg"
-        else:
-            img_extend = cut_string(img_url, "src=./", ".jpg") + ".jpg"
-
-        img_url = "http://old.pep.com.cn/gzhx/gzhxjs/0pl/kb/dzkb/bx1/201009/" + img_extend
-        download_pic(img_url, "pics\\" + str(page_index) + ".jpg")
+    download_pic(img_url, "pics\\"+str(book_code)+"\\" + str(page_index) + ".jpg")
